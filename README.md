@@ -165,6 +165,31 @@ await client.chat.completions.create(
 
 ---
 
+### Vercel AI SDK (TypeScript) — Gateway
+
+**[`vercel-ai-sdk/typescript/gateway-example`](./vercel-ai-sdk/typescript/gateway-example)**
+
+Records every call of an app built on the [Vercel AI SDK](https://ai-sdk.dev) by sending it through the Three.dev gateway. The app keeps its own provider keys and its AI SDK code: each provider instance (`createOpenAI`, `createAnthropic`, `createGoogle`, OpenRouter via `createOpenAICompatible`, `createAzure`) points its `baseURL` at the gateway and carries the `x-three-*` headers, and the session id is passed per call. A small weather assistant runs `generateText`, `streamText` and a tool loop for each provider.
+
+| | |
+|---|---|
+| **Language** | TypeScript (Node.js 22+) |
+| **LLM Provider** | OpenAI · Anthropic · Gemini · OpenRouter · Azure OpenAI |
+| **Integration style** | Gateway proxy (provider instance `baseURL` + headers) |
+| **What you need** | Three.dev API key · API key for at least one provider |
+
+```ts
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,         // your own provider key
+  baseURL: "https://gate.three.dev/v1",
+  headers: { "x-three-api-key": threeApiKey, "x-three-use-case": useCaseSlug, "x-three-ai-provider": "openai" },
+});
+
+await generateText({ model: openai("gpt-5.4-mini"), prompt, headers: { "x-three-session-id": sessionId } });
+```
+
+---
+
 ## Getting started
 
 Every example has its own README with step-by-step instructions. The general flow is:
@@ -188,13 +213,16 @@ integrations-examples/
 │   │   └── manual-reporting-example/   # Anthropic Ruby SDK + manual reporting (no proxy)
 │   └── ruby-on-rails/
 │       └── manual-reporting-example/   # Anthropic Ruby SDK on Rails + manual reporting (ActiveJob)
-└── openai-sdk/
-    ├── ruby/
-    │   └── manual-reporting-example/   # OpenAI Ruby SDK + manual reporting (no proxy)
-    ├── ruby-on-rails/
-    │   └── manual-reporting-example/   # OpenAI Ruby SDK on Rails + manual reporting (ActiveJob)
+├── openai-sdk/
+│   ├── ruby/
+│   │   └── manual-reporting-example/   # OpenAI Ruby SDK + manual reporting (no proxy)
+│   ├── ruby-on-rails/
+│   │   └── manual-reporting-example/   # OpenAI Ruby SDK on Rails + manual reporting (ActiveJob)
+│   └── typescript/
+│       └── live-experiment-example/    # OpenAI JS SDK + Three.dev Live Experiments
+└── vercel-ai-sdk/
     └── typescript/
-        └── live-experiment-example/    # OpenAI JS SDK + Three.dev Live Experiments
+        └── gateway-example/            # Vercel AI SDK + Three.dev gateway (5 providers)
 ```
 
 More examples are on the way. Check back soon or open an issue to request a specific language, SDK, or provider.
